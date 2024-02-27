@@ -1,0 +1,7 @@
+Q1
+
+- inconsistent times for weight recordings
+
+- inconsistent number of recordings per chick
+
+- inconsistent naming conventions: "weight", "Time" (nit)
