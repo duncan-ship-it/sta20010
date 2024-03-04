@@ -38,11 +38,13 @@ getwd()  # get directory
 
 - Indexing starts at 1
 
-- `<-` assigns an r-value
+- `<-` or `=` assigns an r-value
 
 - `;` seperates two or more operations on a single line - optional
 
 - Single or double quotes can be used for strings - pairs must match
+
+- append `L` to number to signify integer
 
 ## Division
 
@@ -122,10 +124,167 @@ seq(1, 5, by=0.2)  # increment by 0.2 (generate 21 elements)
 
 ```
 
-# Data frames
+## Data frames
 
 - Useful for storing tabular data
 
 - Access column data via `df$col` - returns vector
 
 - R has a built-in `Orange` dataframe
+
+# Week 2
+
+## Vectors
+
+- R is a vector-based language
+
+- Use `str()` (structure) function to see structure of vector
+
+    - Type of elements
+
+    - Dimensions (height, width)
+
+    - Prints elements contained in vector
+
+- Use `length()` to find length of vector
+
+- Use `is.vector()` to determine whether the object is a vector
+
+- Use indexing to access vector members
+
+    - Indexing starts at 1
+
+    - Negative indices discards the `|n|th` element from the vector if it exists
+
+- Get multiple vector elements by passing in numeric vector of indices:
+
+    - Example: `vec[c(1, 3)]  # get 1st and third element`
+
+    - Negative indices can only be used with `0`
+
+    - Non-integer indices are truncated `3.54` -> `3`
+
+- Get range of vector elements:
+
+    - Example: `vec[1:4]  # get elements 1 to 4 inclusive` 
+
+    - Example: `vec[-(1:4)]  # get all elements EXCEPT 1 to 4 inclusive` 
+
+## Modifying vectors
+
+- Vectors elements can be reassigned
+
+- Vectors can be reassigned parts of themselves
+
+```R
+test <- c(1, 2, 3, 4)
+
+test[4] <- 5  # last vector element is now 5
+
+test <- test[1:3]  # truncate vector to first 3 elements
+
+```
+
+- Vectors can be sorted using `sort()` function (creates copy)
+
+    - Example: `sort(v, decreasing=TRUE)  # make descending sorted copy`
+
+- Vector members can be named (and indexed accordingly)
+
+```R
+v <- c("John", "Doe")
+names(v) <- c("FirstName", "LastName")
+
+v["FirstName"]  # John
+
+```
+
+## Vector coersion
+
+- Vectors of different types can be combined to the most general type of either vector:
+
+- Known as equation
+
+```R
+vec <- c(1, 2, 3)
+
+class(vec)  # numeric
+
+vec[3] <- "hello"
+
+class(vec)  # character
+```
+
+## Vector operations
+
+- Performed member-wise
+
+- Members are recyled from a shorter vector, provided the longer vector's length is a multiple of the short vector (warning is displayed if not the case)
+
+- `all()` and `any()` functions can be used to check all members for condition
+
+- `%in%` operator checks whether value is a vector member
+
+- `head()` and `tail()` functions returns first/last 6 elements of vector
+
+    - `tail()` takes additional parameter for amount of last elements
+
+- Passing condition involving vector in index will return all elements that satisfy condition
+
+## Character vector operations
+
+- Use the `paste()` function to combine character elements
+
+    - Example: `paste(v, 1:3, sep = "-")  # concatenate v elements 1 to 3 with - seperator`
+
+- `paste()` can also collapse the elements into a single string
+
+    - Example: `paste(v, collapse = ", ")  # combine all v elements into a single string, with ", " seperator`
+
+- `strsplit()` splits a given string at a particular substring
+
+    - Example: `strsplit(sentence, " ")  # split words of sentence into character vector`paste(v, 1:3, sep = "-") 
+
+## R Packages
+
+- Get number of available packages: `nrow(available.packages())`
+
+- Install a package: `install.packages("ggplot2")`
+
+- Load a package: `library(ggplot2)` or `require(ggplot2)`
+
+- Get package help: `help(package=ggplot2)`
+
+- Display available datasets from package: `data(package="package")`
+
+- View data: View(dataset)
+
+## Matrices
+
+- 2D data structure with homogenous elements
+
+- Create a new matrix using `matrix()` function
+
+    - This takes a vector and converts it into a matrix with specified number of rows and columns
+
+    - Populates by column by default
+
+- `rbind()` converts multiple row vectors into a matrix
+
+- `cbind()` converts multiple col vectors into a matrix
+
+```R
+m <- matrix(1:9, nrow=3, byrow=TRUE)  # create 3 x 3 matrix of 1 to 9 sequence
+```
+- Rows/Cols can be named by passing in `dimnames` (2 element list of vectors) into `matrix` function
+
+    - Example: `m <- matrix(1:9, nrow=3, dimnames=list(c("first","second","third"), c("A","B","C")))`
+
+- Rows/Col names can be changed after creating the matrix:
+
+    - Example: `colnames(m) <- c("C1", "C2", "C3")`
+
+    - Example: `rownames(m) <- c("R1", "R2", "R3")`
+
+- `dim()` function returns vector of height and width of matrix
+
