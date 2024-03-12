@@ -38,7 +38,7 @@ getwd()  # get directory
 
 - Indexing starts at 1
 
-- `<-` or `=` assigns an r-value
+- `<-` or `=` assigns to an l-value
 
 - `;` seperates two or more operations on a single line - optional
 
@@ -259,6 +259,8 @@ class(vec)  # character
 
 - View data: View(dataset)
 
+- Functions can be accessed from uninstalled packages: `package::func()`
+
 ## Matrices
 
 - 2D data structure with homogenous elements
@@ -287,4 +289,244 @@ m <- matrix(1:9, nrow=3, byrow=TRUE)  # create 3 x 3 matrix of 1 to 9 sequence
     - Example: `rownames(m) <- c("R1", "R2", "R3")`
 
 - `dim()` function returns vector of height and width of matrix
+
+# Week 3
+
+## Data frames
+
+- Can compose different vector types of the same length, with labels for each column
+
+- `attach()` function will allow you to access dataframe variables directly without using `$` syntax
+
+- Initialisation
+
+```R
+FirstName <- c("John", "Peter", "Kevin")
+
+Age <- c(25, 29, 22)
+
+df <- data.frame(FirstName, Age, 
+    stringsAsFactors=F)  # force FirstName to be a character vector (only required in older R versions)
+```
+## Updating dataframes
+
+```R
+df <- rbind(df, c("Jim", 23))  # add record to dataframe
+
+# add multiple records to dataframe
+
+records <- data.frame(FirstName = c("Tina", "Sam"), Age = c(22, 19))
+
+df <- rbind(df, records)
+
+# add column to dataframe
+
+Height <- c(184, 167, 156, 174, 143, 184)
+
+df$Height <- Height  # method 1 - dollar sign
+
+df <- cbind(df, Height)  # method 2 - cbind
+```
+
+- `cbind()` can also combine two different dataframes
+
+## Sorting dataframes
+
+- Use the `order()` function
+
+- `t()` function transposes matrix output
+
+```R
+require("babynames")
+
+# get top 6, order by n column descending
+
+head(order(babynames$n, decreasing = T),)
+
+# get the records by most popular name
+
+babynames[order(babynames$n, decreasing = T),]
+
+```
+
+## Indexing dataframes
+
+```R
+babynames[babynames$n>50000 & babynames$sex == "F",]  # index by logic
+
+```
+
+## Summary statistics
+
+- Different statistics will be used depending on these factors:
+
+    - Type of variables:
+
+        - Interval/ratio (quantitative) variables
+
+        - Ordinal/nominal (qualitative) variables
+
+    - Shape of data (central tendency)
+
+        - Skewed (use median and IQR)
+
+        - Normal (use mean and standard deviation)
+
+        - Can be determined using a histogram, boxplot, stem/leaf plot
+
+        - Use `summary()` function to find mean, median, IQR ranges, and min/max of variable
+
+            - `stat.desc()` (`pastecs`) and `describeBy()` (`psych`) functions
+
+        - `table()` function creates a frequency table of categorical variables
+
+    - Variation (dispersion)
+
+        - How spread out the data points are
+
+## Graphs for level of measurement
+
+| Level                | Properties         | Examples       | Descript. stats                                   | Graphs                                |
+|-                     |-                   |-               |-                                                  |-                                      |
+| Nominal / Categorial | Discrete, no order | Gender         | Mode, freqs/percents                              | Bar/Pie                               |
+| Ordinal / Rank       | Discrete, ordered  | Grades         | Mode frqs/percents, min-max-r, IQR                | Bar/Pie                               |
+| Interval             | 0 is meaningless   | Attitude score | Mode, frqs/percents, min-max-r, IQR, mean/SD/Skew | Bar/Pie, stem, boxplot, histogram (M) |
+| Ratio                | 0 is meaningful    | Age            | Same as above                                     | Histogram, stem, boxplot/error bar    |
+
+## Plotting in base R
+
+```R
+require("mosaicData")
+attach(SwimRecords)
+
+# histogram
+
+hist(time, main="Time of the swimming world records", xlab="Year", ylab="Time, sec")
+
+# add graph legend
+
+legend(1960, 93, legend=c("Male", "Female"), lty=c("solid", "dashed"), col=c("navy", "orange"))
+
+# line graph (Male times)
+
+plot(year[sex=="M"], time[sex=="M"], col="navy", type="l", xlab="Year", ylab="Time, sec")
+```
+
+## Plotting in `ggplot2`
+
+```R
+require("mosaicData")
+require("ggplot2")
+
+attach(SwimRecords)
+
+# plot histogram
+
+p <- ggplot(data = SwimRecords, aes(x = time))
+
+p + geom_histogram() + ggtitle("Time of the swimming world records",
+                                subtitle="100m distance") +
+                                xlab("Year") +
+                                ylab("Time, sec")
+
+# stacked histogram
+
+p2 <- ggplot(data = SwimRecords, aes(x = time, color=sex)) + 
+        geom_histogram(fill="black")
+
+p2 + ggtitle("Time of the swimming world records",
+                                subtitle="100m distance") +
+                                xlab("Year") +
+                                ylab("Time, sec")
+
+# line graph
+
+p3 <- ggplot(data = SwimRecords, aes(x=year, y=time, group=sex)) + 
+        geom_line(aes(linetype=sex, color=sex)) +
+        geom_line(aes(linetype=sex, color=sex)) +
+        geom_point(aes(shape=sex, color=sex))
+
+p3 + ggtitle("Time of the swimming world records",
+            subtitle="100m distance") +
+            xlab("Year") +
+            ylab("Time, sec")
+
+```
+## Data I/O
+
+```R
+# load exported dataframe (.RData)
+
+load("data.RData")
+
+# export dataframe
+
+save(data, file = "data.RData")
+
+# read csv as dataframe
+
+read.table("data.csv", sep = ",", header=T)
+
+# export dataframe as csv
+
+write.table(data, "path/to/file.csv", sep=",")
+
+# read excel file
+
+install.packages("xlsx")
+require("xlsx")
+
+read.xlsx("data.xlsx", 1)  # read first worksheet
+read.xlsx("data.xlsx", "first")  # read worksheet named "first"
+
+# read SPSS file
+
+install.packages("haven")
+require("haven")
+
+read_spss(file="data.sav")
+
+fullFilePath <- paste(getwd(), "mtcars.sav", sep = "/")
+
+```
+
+## Data inconsistencies
+
+- Common issues:
+
+    - Dates are sane
+
+    - Items add up
+
+    - Values are reasonable
+
+    - Variable names are consistent
+
+    - Duplicate data
+
+    - Missing values
+
+        - Represented by `NA` (`is.na()`)
+
+        - `NaN`implies not a number (`is.nan()`)
+
+- Missing data
+
+    - Can introduce bias
+
+    - Should be replaced with the mean/median, depending on the skewness of the data
+
+- Use `which()` and `duplicated()` function to find duplicate records
+
+- Use `complete.cases()` to find rows that contain complete data
+
+```R
+which(duplicated(data))
+
+# copy of data set with duplicates removed
+data[!duplicated(data)]
+```
+
+
+
 
