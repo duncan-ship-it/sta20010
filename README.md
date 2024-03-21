@@ -492,7 +492,7 @@ fullFilePath <- paste(getwd(), "mtcars.sav", sep = "/")
 
 ## Data inconsistencies
 
-- Common issues:
+- Things to check:
 
     - Dates are sane
 
@@ -502,6 +502,8 @@ fullFilePath <- paste(getwd(), "mtcars.sav", sep = "/")
 
     - Variable names are consistent
 
+- Common problems:
+  
     - Duplicate data
 
     - Missing values
@@ -527,6 +529,112 @@ which(duplicated(data))
 data[!duplicated(data)]
 ```
 
+# Week 4
 
+## Factors
+
+- Data objects that categorise the data as levels
+
+- Can take integers or strings
+
+- Example: "Male" and "Female"
+
+- More than 2 levels = anormal - compare means of groups
+
+- Can be instantiated using vectors:
+
+```R
+directions <- c("North", "East", "South", "West")
+
+dir_factor = factor(directions)  # encode a vector as a factor
+
+is.factor(dir_factor)  # TRUE
+
+nlevels(dir_factor)  # 4
+
+levels(dir_factor)  # "East"  "North" "South" "West"
+
+# change the order of the levels
+dir_factor <- factor(dir_factor, levels = c("North", "South", "East"))
+```
+
+- Dataframes will automatically convert vector variables into factors, set `stringsAsFactors=FALSE` to set them as characters
+
+## Converting data types
+
+```R
+as_character()
+
+as.numeric()
+
+as.factor()
+
+as.integer()
+
+as.Date()
+```
+
+## List
+
+- Contains collections of different data types
+
+- Can contain named entries similar to vectors
+
+- Index notation:
+
+```R
+l <- list(x1 = 2, x2 = c(1))
+
+l["x1"]  # 2
+l[1]  # 2
+
+l[[x2]]  # 2 (this will extract the first value if the indexed element is an iterable structure)
+
+l$x1  # 2
+```
+
+## Mapping/aggregation functions
+
+### apply
+  - Useful for iteratively manipulating slices of data
+
+```R
+
+apply()  # apply function over the matrix/array
+
+tapply()  # apply function to a vector, grouped by another vector
+
+```
+
+### `melt`
+
+- Elongates the dataframe by adding records with unique values of the specified by the user
+
+### `cast`
+
+- Does the opposite of melt, shrinks the dataset to unique columns specified by the user, allowing for aggregation of groups of records
+
+### `spread`
+
+- Converts a long dataset to wide, by combining records that share a particular field
+- 
+
+## Conditionals
+
+- If statement
+  - Cannot be used in a loop
+  - Can only work with scalar variables
+  
+- `ifelse()`
+  - Can be used in a loop
+  - Can be used with iterables
+  - 
+```R
+total <- c(50)
+if (total > 50) print("test")
+total <- c(50)
+
+ifelse(total > 50, "yes", "no")
+```
 
 
