@@ -637,4 +637,14 @@ total <- c(50)
 ifelse(total > 50, "yes", "no")
 ```
 
+# Week 5
 
+## Freeing memory
+
+```
+ls()  # list all variables/functions loaded in the workspace
+
+rm(list=ls())  # free all memory used for loaded variables/functions
+
+
+```
