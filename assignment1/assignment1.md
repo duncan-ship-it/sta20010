@@ -8,21 +8,43 @@ The effects of diet on the weight of chicks during early development was investi
 
 There are 578 observations and 4 variables in the dataset:
 
-- There are 2 numeric variables, namely "weight" and "Time". "weight" contains the measured chick's weight in grams. "Time" contains the age of the chick in days since birth.
+- There are 2 numeric variables, namely weight and Time. Weight contains the measured chick's weight in grams. Time contains the age of the chick in days since birth.
 
-- There are 2 factor variables, namely "Chick" and "Diet". "Chick" is an ordered factor with 50 levels, that uniquely identifies each chick with an integer. The factors are ordered by their final weight amongst the other chicks in the same diet group, from lightest to heaviest (note that the factor number does not correspond to it's order). "Diet" is a factor containing 4 levels, specifying the type of diet the chick received.
+- There are 2 nominal variables, namely Chick and Diet. Chick is an ordered factor with 50 levels, that uniquely identifies each chick with an integer. The factors are ordered by their final weight amongst the other chicks in the same diet group, from lightest to heaviest (note that the factor number does not correspond to the chick's order). Diet is a factor containing 4 levels, specifying the type of diet the chick received.
 
 ### 2. _Look at carefully the variable and discuss any inconsistencies dataset has. Explain your reasoning and the steps you have taken._
 
-A few chicks were only measured up to a certain day, and are missing measurement entries, namely chicks 8, 15, 16, 18, and 44. This is an obvious data inconsistency, as these cases are missing observations, and can be explained by chicks dying during the experiment.
+```
+> attach(ChickWeight)
+> table(Time)
+Time
+ 0  2  4  6  8 10 12 14 16 18 20 21 
+50 50 49 49 49 49 49 48 47 47 46 45
+> sort(tapply(Time, Chick, max))
+18 16 15 44  8 13  9 20 10 17 19  4  6 11  3  1 12  2  5 14  7 24 30 22 23 27 
+ 2 12 14 18 20 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 
+28 26 25 29 21 33 37 36 31 39 38 32 40 34 35 45 43 41 47 49 46 50 42 48 
+21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21
+```
 
-These cases should still be included in the analysis, since there is no inaccuracies in the data present in these cases, and they demonstrate an important event in the experiment.
+A few chicks were only measured up to a certain day, and are missing measurement entries, namely chicks 8, 15, 16, 18, and 44. Chick 18 was only measured up to day 2, chick 16 day 12, chick 15 day 14, chick 44 day 18, and chick 8 day 20. This is an obvious data inconsistency, as these cases are missing observations, and can be explained by chicks dying during the experiment.
 
-Another data inconsistency is the time intervals of the experiment, with the final measurement taking place on day 21, leaving a 1 day gap between the previous measurement, whereas all other measurements have a consistent 2 day interval.
+These cases should still be included in the analysis, since they demonstrate an important event in the experiment, and there are no inaccuracies in this incomplete data.
 
-Furthermore, the varible naming scheme is inconsistent, with the weight variable name being fully lowercase, while the other variables are sentence case (Time, Chick, Diet).
+```
+> which(duplicated(ChickWeight))
+integer(0)
+> nrow(ChickWeight) - nrow(ChickWeight[complete.cases(ChickWeight),])
+[1] 0
+```
+No missing data or duplicate records exist.
 
-Other aspects of the dataset were validated, such as Time recordings being integers between 0 and 21, even numbers (unless 21), and no records existing with duplicate Time and Chick measurements. The dataset was also scanned for any fully duplicate records, yielding no duplicates. The minimum and maximum weights of 35g and 375g respectively are plausible weights of a chick. Checking for incomplete cases yielded no results.
+```
+> summary(weight)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   35.0    63.0   103.0   121.8   163.8   373.0
+```
+The minimum and maximum weights of 35g and 375g respectively are plausible weights of a chick. The distribution of weights appears natural.
 
 ### 3. _Produce appropriate summary statistics and graphs to see any association between variables and discuss._
 
@@ -38,6 +60,7 @@ Other aspects of the dataset were validated, such as Time recordings being integ
                                  (Other):506
 ```
 ```
+> require("psych")
 > describeBy(weight, Diet)
 
  Descriptive statistics by group 
@@ -57,31 +80,41 @@ group: 4
    vars   n   mean    sd median trimmed   mad min max range skew kurtosis   se
 X1    1 118 135.26 68.83  129.5   131.2 84.51  39 322   283  0.4    -0.67 6.34
 ```
+```
+> require("ggplot2")
+> ggplot(ChickWeight, aes(x = Time, y = weight, group = Chick)) + 
+        geom_line(linetype = 1, lwd = 1.1) + 
+        facet_wrap(~ Diet, nrow=4) + 
+        ggtitle("Chick weights over time by diet") +
+        xlab("Time, days since birth") +
+        ylab("Weight, grams")
+```
 
 ![](./plots/Q1_weight_line_plot.png)
 
-The weight of chicks in the dataset ranges from 35g to 373g, and is positively skewed, with a median chick weight of 103g. The variance in Chick weights is negligible towards day 0, but increases dramatically over time as the chicks age, across all diet groups.
+The weight of chicks in the dataset ranges from 35g to 373g, with a median chick weight of 103g. The variance in Chick weights is low towards day 0, yet increases dramatically over time as the chicks age, across all diet groups, resulting a large variance in weights towards the end of the experiment.
 
-There is an indication that "Diet" has an effect on chick's weight during early development. We can deduce that chicks eating Diet 1 tended to be the most malnourished, with the lowest median weight of 88g, and 4 of the 5 deaths ocurring in chicks from this group. Diet 2 chicks were also typically lighter than groups 3 and 4, with a median weight of 104.5g. Numerous chicks in this group lost weight during the experiment, with one chick maintaining a very low weight of approximately 75g.
+Chicks eating Diet 1 tended to be the most malnourished, with the lowest median weight of 88g, and 4 of the 5 deaths ocurring in chicks from this group. Diet 2 chicks were also typically lighter than groups 3 and 4, with a median weight of 104.5g. Numerous chicks in this group lost weight during the experiment, with one chick maintaining a very low weight of approximately 75g.
 
-Conversely, chicks eating Diet 3 or 4 tended to gain the most weight during the experiment, with the highest median weights (125.5g and 129.5g respectively). Despite diet 4 having the highest median weight, a chick from this group died late in the experiment.
+Conversely, chicks eating Diet 3 or 4 tended to gain the most weight during the experiment, with the highest median weights (125.5g and 129.5g respectively). Despite Diet 4 having the highest median weight, chick  44 from this group died late in the experiment, with the last observation of this chick occuring on day 18.
 
 ## Question 2
 
 ### 1. _Read the dataset in R, obtain the structure of the dataset and discuss._
 
 ```
-> str(cleaning)
+> cleaning <- read.csv("Cleaning.csv")
+str(cleaning)
 'data.frame':   101 obs. of  16 variables:
  $ ID     : int  1 2 3 4 5 6 7 8 9 10 ...
  $ AGE    : int  18 23 39 24 27 26 26 26 28 24 ...
- $ GENDER : Factor w/ 2 levels "Female","Male": 2 1 2 2 2 2 1 1 2 1 ...
+ $ GENDER : chr  "Male" "Female" "Male" "Male" ...
  $ YRSTUDY: int  3 7 10 6 16 16 10 8 9 6 ...
  $ Q1     : int  8 15 9 10 10 10 14 12 9 10 ...
  $ Q2     : int  14 21 12 15 20 16 18 17 15 13 ...
  $ Q3     : int  16 20 14 15 21 16 16 11 21 23 ...
- $ Q4     : int  19 23 12 18 24 18 16 9 23 24 ...
- $ Q5     : int  18 19 22 17 25 18 10 17 24 19 ...
+ $ Q4     : chr  "19" "23" "12" "18" ...
+ $ Q5     : chr  "18" "19" "22" "17" ...
  $ Q6     : int  14 16 20 15 23 18 11 10 23 19 ...
  $ Q7     : int  21 20 16 20 29 20 15 18 21 24 ...
  $ Q8     : int  27 22 22 29 26 27 27 21 23 23 ...
@@ -90,50 +123,68 @@ Conversely, chicks eating Diet 3 or 4 tended to gain the most weight during the 
  $ Q11    : int  22 18 23 27 21 25 24 24 26 19 ...
  $ Q12    : int  14 17 15 13 24 14 13 10 22 18 ...
 ```
-The above dataset describes student scores ranked on a scale of 0 to 40 on a series of 12 questions, along with their age, gender, and years of education. The effects of years of study on each question's score varies by age and gender.
+The above dataset describes student scores on a series of 12 questions, on a scale of 0 to 40, along with their age, gender, and years of education. The effects of years of study on each question's score varies by age and gender.
 
 There are 101 observations and 16 variables in the dataset:
 
-- There are 15 numeric variables, namely "ID", "AGE", "YRSTUDY", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10", "Q11", and "Q12". "ID" contains a number that identifies the student by an integer. "AGE" contains the student's age in years. "YRSTUDY" contains the current year of education the student is studying in. "Q1" to "Q12" contains the student's received score on the relevant question, on a scale from 0 to 40.
+- There are 13 numeric variables, namely ID, AGE, YRSTUDY, Q1 to Q3, and Q6 to Q12. ID contains a number that identifies the student by an integer. AGE contains the student's age in years. YRSTUDY contains the current year of education the student is studying in. Q1 to Q3 and Q6 to Q12 contains the student's received score on the relevant question, on a scale from 0 to 40.
 
-- There is 1 factor variable, namely "GENDER". This is a factor with two levels, "Male" and "Female", describing the student's gender.
+- There are 3 nominal variables, namely GENDER, Q4, and Q5. GENDER contains two values, namely "Male" and "Female". Q4 and Q5 contain student scores on these questions ranked on a scale of 0 to 40.
 
 ### 2. _Discuss and report any missing values and unusual characters in the dataset._
 
+There is a problem with how Q4 and Q5 were read into the dataframe, as they should be numeric variables instead of nominal. We can search for unexpected characters (not digits) in these questions:
+
+```
+> attach(cleaning)
+> Q4[grep("[^0-9]", Q4)]
+[1] "#NA"
+> Q5[grep("[^0-9]", Q5)]
+[1] "#NA"
+```
+This demonstrates the problem, there are unexpected character values, ("#NA") which cause these variables to be intepreted as character values instead. This can be remedied by converting these scores to integers, whilst converting any values containing special characters to NA (missing values):
+
+```
+> cleaning$Q4 <- as.integer(ifelse(Q4 == "#NA", NA, Q4))
+> cleaning$Q5 <- as.integer(ifelse(Q5 == "#NA", NA, Q5))
+> detach(cleaning)
+attach(cleaning)
+```
+
 ```
 > summary(cleaning)
-       ID           AGE           GENDER      YRSTUDY             Q1       
- Min.   :  1   Min.   :18.00   Female:69   Min.   : 0.000   Min.   : 7.00  
- 1st Qu.: 26   1st Qu.:19.00   Male  :32   1st Qu.: 3.000   1st Qu.: 9.00  
- Median : 51   Median :23.00               Median : 6.000   Median :10.00  
- Mean   : 51   Mean   :23.35               Mean   : 6.634   Mean   :10.94  
- 3rd Qu.: 76   3rd Qu.:26.00               3rd Qu.: 9.000   3rd Qu.:12.00  
- Max.   :101   Max.   :39.00               Max.   :20.000   Max.   :19.00  
-                                                                           
-       Q2              Q3              Q4              Q5        
- Min.   : 9.00   Min.   :10.00   Min.   : 9.00   Min.   : 10.00  
- 1st Qu.:13.00   1st Qu.:15.00   1st Qu.:15.75   1st Qu.: 15.00  
- Median :15.00   Median :18.00   Median :20.00   Median : 18.00  
- Mean   :15.61   Mean   :18.02   Mean   :19.11   Mean   : 19.23  
- 3rd Qu.:19.00   3rd Qu.:21.00   3rd Qu.:23.00   3rd Qu.: 21.00  
- Max.   :28.00   Max.   :30.00   Max.   :30.00   Max.   :120.00  
- NA's   :1                       NA's   :1       NA's   :1       
-       Q6              Q7              Q8              Q9       
- Min.   : 9.00   Min.   :13.00   Min.   :19.00   Min.   :16.00  
- 1st Qu.:13.00   1st Qu.:16.00   1st Qu.:24.00   1st Qu.:24.00  
- Median :16.00   Median :20.00   Median :26.00   Median :26.00  
- Mean   :16.19   Mean   :20.29   Mean   :25.45   Mean   :25.59  
- 3rd Qu.:19.00   3rd Qu.:22.00   3rd Qu.:28.00   3rd Qu.:27.00  
- Max.   :26.00   Max.   :52.00   Max.   :32.00   Max.   :33.00  
-                                                                
-      Q10             Q11             Q12       
- Min.   :22.00   Min.   :13.00   Min.   :10.00  
- 1st Qu.:23.00   1st Qu.:21.00   1st Qu.:15.00  
- Median :24.00   Median :23.00   Median :17.50  
- Mean   :23.73   Mean   :23.01   Mean   :17.61  
- 3rd Qu.:25.00   3rd Qu.:25.00   3rd Qu.:20.00  
- Max.   :26.00   Max.   :52.00   Max.   :26.00  
- NA's   :1       NA's   :1       NA's   :1
+       ID           AGE           GENDER             YRSTUDY      
+ Min.   :  1   Min.   :18.00   Length:101         Min.   : 0.000  
+ 1st Qu.: 26   1st Qu.:19.00   Class :character   1st Qu.: 3.000  
+ Median : 51   Median :23.00   Mode  :character   Median : 6.000  
+ Mean   : 51   Mean   :23.35                      Mean   : 6.634  
+ 3rd Qu.: 76   3rd Qu.:26.00                      3rd Qu.: 9.000  
+ Max.   :101   Max.   :39.00                      Max.   :20.000  
+                                                                  
+       Q1              Q2              Q3              Q4       
+ Min.   : 7.00   Min.   : 9.00   Min.   :10.00   Min.   : 9.00  
+ 1st Qu.: 9.00   1st Qu.:13.00   1st Qu.:15.00   1st Qu.:15.75  
+ Median :10.00   Median :15.00   Median :18.00   Median :20.00  
+ Mean   :10.94   Mean   :15.61   Mean   :18.02   Mean   :19.11  
+ 3rd Qu.:12.00   3rd Qu.:19.00   3rd Qu.:21.00   3rd Qu.:23.00  
+ Max.   :19.00   Max.   :28.00   Max.   :30.00   Max.   :30.00  
+                 NA's   :1                       NA's   :1      
+       Q5               Q6              Q7              Q8       
+ Min.   : 10.00   Min.   : 9.00   Min.   :13.00   Min.   :19.00  
+ 1st Qu.: 15.00   1st Qu.:13.00   1st Qu.:16.00   1st Qu.:24.00  
+ Median : 18.00   Median :16.00   Median :20.00   Median :26.00  
+ Mean   : 19.23   Mean   :16.19   Mean   :20.29   Mean   :25.45  
+ 3rd Qu.: 21.00   3rd Qu.:19.00   3rd Qu.:22.00   3rd Qu.:28.00  
+ Max.   :120.00   Max.   :26.00   Max.   :52.00   Max.   :32.00  
+ NA's   :1                                                       
+       Q9             Q10             Q11             Q12       
+ Min.   :16.00   Min.   :22.00   Min.   :13.00   Min.   :10.00  
+ 1st Qu.:24.00   1st Qu.:23.00   1st Qu.:21.00   1st Qu.:15.00  
+ Median :26.00   Median :24.00   Median :23.00   Median :17.50  
+ Mean   :25.59   Mean   :23.73   Mean   :23.01   Mean   :17.61  
+ 3rd Qu.:27.00   3rd Qu.:25.00   3rd Qu.:25.00   3rd Qu.:20.00  
+ Max.   :33.00   Max.   :26.00   Max.   :52.00   Max.   :26.00  
+                 NA's   :1       NA's   :1       NA's   :1 
 ```
 
 ```
@@ -144,15 +195,15 @@ There are 101 observations and 16 variables in the dataset:
 89 89  24   Male       6 10 NA 11 12 13 15 16 26 21  22  23  13
 93 93  27 Female      11  7  9 12 NA 15 13 15 25 24  NA  22  15
 ```
-
-"Q2", "Q4", "Q5", "Q10", "Q11", and "Q12" contain missing values, totalling 6 NA values.
-
 ```
 > apply(cleaning[seq(5, 16)], 2, max, na.rm=T) 
  Q1  Q2  Q3  Q4  Q5  Q6  Q7  Q8  Q9 Q10 Q11 Q12 
  19  28  30  30 120  26  52  32  33  26  52  26
 ```
-Questions 5, 7 and 11 contain unusually high values, given that the score scale limit was 40 (120, 52, and 52 respectively).
+
+Furthermore, some questions contain unusually high values, given that the score scale was between 0 and 40. Q5 has a 120 score, and Q7 and Q8 each have a 52 score.
+
+Excluding the converted "#NA" values, there were 4 missing values (Q2, Q10, Q11, Q12).
 
 ### 3. _Replace unusual values and missing values if exists, in the dataset with NA._
 
@@ -198,7 +249,7 @@ $Q12
 X1    1 100 17.61 3.21   17.5   17.52 3.71  10  26    16 0.23    -0.28 0.32
 ```
 
-"Q2", "Q4", "Q5", "Q7", "Q10", "Q11", and "Q12" scores are all approximately normally distributed, as their skews are within -0.5 and 0.5 (skew = 0.38, -0.07, 0.18, 0.41, 0.07, 0.17, and 0.23 respectively). Therefore, it is appropriate to impute these missing values with the mean of each variable, such that no bias is introduced to the dataset:
+Q2, Q4, Q5, Q7, Q10, Q11, and Q12 scores are all approximately normally distributed, as their skews are within -0.5 and 0.5 (skew = 0.38, -0.07, 0.18, 0.41, 0.07, 0.17, and 0.23 respectively). Therefore, it is appropriate to impute these missing values with the mean of each variable, such that no bias is introduced to the dataset:
 
 ```
 > cleaning$Q2 <- replace(Q2, is.na(Q2), mean(Q2, na.rm=T))
@@ -250,6 +301,13 @@ From the above frequency table, fuel type D is the least commonly used (20), whe
 
 ### 3. _Obtain a bar plot for the variable “Fuel\_type”_
 
+```
+> df <- data.frame(Fuel=names(t), Frequency=as.vector(t))
+
+> ggplot(df, aes(x=Fuel, y=Frequency)) +
+   geom_bar(stat = "identity") +
+   ggtitle("Frequency of fuel types")
+```
 ![](./plots/Q3_fuel_bar_plot.png)
 
 ### 4. _Obtain mean and standard deviation for the variable“City\_Fuel” based on “Cylinders” and discuss._
@@ -291,7 +349,7 @@ group: 16
 X1    1 2   27 0.28     27      27 0.3 26.8 27.2   0.4    0    -2.75 0.2
 ```
 
-The "City_Fuel" mean consumption by "Cylinders" ranges from 8.52 mpg to 27 mpg. There is a definite positive trend in city fuel consumption and number of cylinders, with each increase in cylinders resulting in a higher mean fuel consumption. Light-duty vehicles with more cylinders tend to consume higher amounts of fuel in the city.
+The City_Fuel mean consumption by Cylinders ranges from 8.52 mpg to 27 mpg. There is a definite positive trend in city fuel consumption and number of cylinders, with each increase in cylinders resulting in a higher mean fuel consumption. Light-duty vehicles with more cylinders tend to consume higher amounts of fuel in the city.
 
 ### 5. _List the records of the vehicles where Smog\_Rating= 7, Transmission=” A6” and Fuel\_type=”Z”_
 
@@ -302,9 +360,17 @@ The "City_Fuel" mean consumption by "Cylinders" ranges from 8.52 mpg to 27 mpg. 
 [11] Smog_Rating 
 <0 rows> (or 0-length row.names)
 ```
+No records were found with this criteria.
 
 ### 6. _Obtain a parallel boxplot for the variable “Emission\_co2” by “Fuel\_type” variable and discuss._
 
+```
+ggplot(fuel, aes(x = Fuel_type, y = Emission_co2)) + 
+        geom_boxplot() + 
+        ggtitle("CO2 emmissions by fuel type") +
+        xlab("Fuel type") +
+        ylab("CO2 emmissions, grams per km")
+```
 ![](./plots/Q3_fuel_type_boxplot.png)
 
 ```
@@ -333,6 +399,14 @@ As seen from the boxplot, fuel type X causes the lowest amount of CO2 emissions,
 Meanwhile, fuel type D has the second highest CO2 emissions, with a median emission of 264.5g/km, and is positively skewed (skew = 1.16), with a single outlier. Fuel type E has the highest CO2 emissions, with a median emission of 298g/gm, and is negatively skewed, (skew = -1.11) with 2 outliers.
 
 ### 7. _Obtain a histogram for variable “Comb\_Fuel” when Transmission = ”A8” and discuss._
+
+```
+ggplot(fuel[Transmission=="A8",], aes(x = Comb_Fuel)) + 
+        geom_histogram(binwidth=1) + 
+        ggtitle("Combined fuel consumption for A8 transmissions") +
+        xlab("Comb_Fuel, mpg") +
+        ylab("Frequency")
+```
 
 ![](./plots/Q3_comb_fuel_histogram.png)
 
@@ -389,10 +463,25 @@ The above dataset describes medical diagnostics from female patients aged 21 yea
 
 There are 768 observations and 9 variables:
 
-- There are 9 numeric variables, namely "Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age", and "Outcome". "Pregnancies" is the number of times the patient has been pregnant. "Glucose" is the Plasma Glucose concentration in a 2 hour oral glucose tolerance test. "BloodPressure" contains the patient's Diastolic Blood Pressure, measured in mm hg. "SkinThickness" contains the Triceps skin fold thickness in mm. "Insulin" contains the 2 hour serum insulin, measured in mu U/ml. "BMI" contains the Body Mass Index of the patient. "Age" contains the patient's age in years. "DiabetesPedigreeFunction" scores the likelihood the patient has diabetes based on family history. "Outcome" indicates whether the patient has Diabetes, being either 0 or 1.
+- There are 9 numeric variables, namely Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, and Outcome.
+  - Pregnancies is the number of times the patient has been pregnant. 
+  - Glucose is the Plasma Glucose concentration in a 2 hour oral glucose tolerance test.
+  - BloodPressure contains the patient's Diastolic Blood Pressure, measured in mm hg.
+  - SkinThickness contains the Triceps skin fold thickness in mm. 
+  - Insulin contains the 2 hour serum insulin, measured in mu U/ml.
+  - BMI contains the Body Mass Index of the patient.
+  - Age contains the patient's age in years.
+  - DiabetesPedigreeFunction scores the likelihood the patient has diabetes based on family history. "Outcome" indicates whether the patient has Diabetes, being either 0 or 1.
 
-The effects of age on whether Pima Indian women aged 21 years or older are diabetic varies by number of pregnancies, Plasma Glucose concentration, blood pressure, skin thickness, insulin levels, BMI, and family history.
+The effects of age on whether Pima Indian women aged 21 years or older are diabetic varies by number of pregnancies, Plasma Glucose concentration, blood pressure, insulin levels, BMI, and family history.
 
+```
+ggplot(diabetes, aes(y = Age, group = Outcome, x = Outcome)) + 
+        geom_boxplot() +
+        ggtitle("Diabetes by age", subtitle = "Diabetic patients are older") +
+        xlab("Diabetic = 1") +
+        ylab("Age, years")
+```
 ![](./plots/Q4_age_diabetes_boxplot.png)
 
 ```
@@ -409,7 +498,13 @@ X1    1 268 37.07 10.97     36   36.28 11.86  21  70    49 0.58    -0.38 0.67
 ```
 From the above boxplot, diabetic patients have the higher median age of 36 years old, with a slight positive skew (skew = 0.58). Meanwhile, non-diabetic patients have a median age of 27 years of age, and are more positively skewed (skew = 1.56). There are many non-diabetic outliers. Both plots have a similar variance.
 
-
+```
+ggplot(diabetes, aes(x = Outcome, group = Outcome, y = Glucose)) +
+        geom_boxplot() +
+        ggtitle("Glucose vs Diabetes", subtitle = "Diabetic patients have higher glucose levels") +
+        xlab("Diabetic = 1") +
+        ylab("Glucose concentration")
+```
 ![](./plots/Q4_glucose_diabetes_boxplot.png)
 
 ```
@@ -427,6 +522,14 @@ X1    1 268 141.26 31.94    140  141.69 35.58   0 199   199 -0.49     1.35 1.95
 
 Diabetic patients also have higher "Glucose", with a median concentration of 140, and an approximately normal distribution (skew = -0.49). 
 
+```
+ggplot(diabetes, aes(x = Age, y = Glucose)) +
+        geom_point() +
+        facet_wrap(~ Outcome, nrow = 1) +
+        ggtitle("Glucose concentration by age and Diabetes", subtitle="Group 1 (Diabetic) have higher glucose levels") +
+        xlab("Age, years") +
+        ylab("Glucose concentration")
+```
 ![](./plots/Q4_glucose_age_scatter.png)
 
 Ultimately, the diabetes "Outcome" for Pima Indian women aged 21 years or older can be best described by "Glucose" concentration and "Age". Older patients with higher Glucose concentration levels are more likely to have diabetes.

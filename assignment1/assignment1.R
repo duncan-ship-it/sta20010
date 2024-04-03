@@ -10,15 +10,15 @@ str(ChickWeight)
 # Part 2: finding data inconsistencies
 attach(ChickWeight)
 
-table(Chick, Time)
+table(Time)
+
+sort(tapply(Time, Chick, max))
 
 which(duplicated(ChickWeight))
 
 nrow(ChickWeight) - nrow(ChickWeight[complete.cases(ChickWeight),])
 
-max(weight)
-
-min(weight)
+summary(weight)
 
 # Part 3: reporting statistics
 
@@ -54,21 +54,28 @@ detach(ChickWeight)
 # Part 1: reading dataset and obtaining structure
 
 # read in dataset, interpreting "#NA" as NA and converting strings to factors
-cleaning <- read.csv("Cleaning.csv", na.strings = "#NA", stringsAsFactors=T)
+cleaning <- read.csv("Cleaning.csv")
 
 str(cleaning)
 
 # Part 2: missing values and data inconsistencies
 
 attach(cleaning)
+Q4[grep("[^0-9]", Q4)]
+Q5[grep("[^0-9]", Q5)]
+
+
+cleaning$Q4 <- as.integer(ifelse(Q4 == "#NA", NA, Q4))
+cleaning$Q5 <- as.integer(ifelse(Q5 == "#NA", NA, Q5))
+
+detach(cleaning)
+attach(cleaning)  # re-attach cleaning with new values
 
 summary(cleaning)
 
 str(cleaning)
 
 # Part 2: missing values and data inconsistencies
-
-attach(cleaning)
 
 cleaning[!complete.cases(cleaning),]  # finding cases with NA values
 
@@ -196,7 +203,7 @@ ggplot(diabetes, aes(x = Age, y = BMI)) +
 
 ggplot(diabetes, aes(y = Age, group = Outcome, x = Outcome)) + 
         geom_boxplot() +
-        ggtitle("Diabetes by age", subtitle = "Diabetic people are older") +
+        ggtitle("Diabetes by age", subtitle = "Diabetic patients are older") +
         xlab("Diabetic = 1") +
         ylab("Age, years")
 
