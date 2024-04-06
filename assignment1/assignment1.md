@@ -6,11 +6,30 @@
 
 The effects of diet on the weight of chicks during early development was investigated by a nutrition student. Chicks were fed 1 of 4 diets, with varying amounts of protein, and their weights were measured at birth, and every second day from birth, up to day 20, and finally measured on day 21.
 
+```
+> str(ChickWeight)
+Classes ‘nfnGroupedData’, ‘nfGroupedData’, ‘groupedData’ and 'data.frame':      578 obs. of  4 variables:
+ $ weight: num  42 51 59 64 76 93 106 125 149 171 ...
+ $ Time  : num  0 2 4 6 8 10 12 14 16 18 ...
+ $ Chick : Ord.factor w/ 50 levels "18"<"16"<"15"<..: 15 15 15 15 15 15 15 15 15 15 ...
+ $ Diet  : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 1 1 1 1 ...
+ - attr(*, "formula")=Class 'formula'  language weight ~ Time | Chick
+  .. ..- attr(*, ".Environment")=<environment: R_EmptyEnv> 
+ - attr(*, "outer")=Class 'formula'  language ~Diet
+  .. ..- attr(*, ".Environment")=<environment: R_EmptyEnv> 
+ - attr(*, "labels")=List of 2
+  ..$ x: chr "Time"
+  ..$ y: chr "Body weight"
+ - attr(*, "units")=List of 2
+  ..$ x: chr "(days)"
+  ..$ y: chr "(gm)"
+```
+
 There are 578 observations and 4 variables in the dataset:
 
 - There are 2 numeric variables, namely weight and Time. Weight contains the measured chick's weight in grams. Time contains the age of the chick in days since birth.
 
-- There are 2 nominal variables, namely Chick and Diet. Chick is an ordered factor with 50 levels, that uniquely identifies each chick with an integer. The factors are ordered by their final weight amongst the other chicks in the same diet group, from lightest to heaviest (note that the factor number does not correspond to the chick's order). Diet is a factor containing 4 levels, specifying the type of diet the chick received.
+- There are 2 nominal variables, namely Chick and Diet. Chick is an ordered factor with 50 levels, that uniquely identifies each chick with an integer. The factors are ordered by their final weight amongst the other chicks in the same diet group, from lightest to heaviest (note that each level value does not correspond to the chick's order). Diet is a factor containing 4 levels, specifying the type of diet the chick received.
 
 ### 2. _Look at carefully the variable and discuss any inconsistencies dataset has. Explain your reasoning and the steps you have taken._
 
@@ -37,7 +56,7 @@ integer(0)
 > nrow(ChickWeight) - nrow(ChickWeight[complete.cases(ChickWeight),])
 [1] 0
 ```
-No missing data or duplicate records exist.
+No missing values (NA) or duplicate records exist.
 
 ```
 > summary(weight)
@@ -92,7 +111,16 @@ X1    1 118 135.26 68.83  129.5   131.2 84.51  39 322   283  0.4    -0.67 6.34
 
 ![](./plots/Q1_weight_line_plot.png)
 
-The weight of chicks in the dataset ranges from 35g to 373g, with a median chick weight of 103g. The variance in Chick weights is low towards day 0, yet increases dramatically over time as the chicks age, across all diet groups, resulting a large variance in weights towards the end of the experiment.
+```
+> ggplot(ChickWeight, aes(y = weight, group = Time, x = Time)) + 
+        geom_boxplot() +
+        ggtitle("Chick Weight over Time", subtitle = "Weight variance increases rapidly over time") +
+        xlab("Time, days since birth") +
+        ylab("Weight, grams")
+```
+![](./plots/Q1_weight_time_boxplot.png)
+
+The weight of chicks in the dataset ranges from 35g to 373g, with a median chick weight of 103g. The variance in Chick weights is low towards day 0, yet increases dramatically over time as the chicks age, especially in diet 1, resulting in a large variance in weights towards the end of the experiment.
 
 Chicks eating Diet 1 tended to be the most malnourished, with the lowest median weight of 88g, and 4 of the 5 deaths ocurring in chicks from this group. Diet 2 chicks were also typically lighter than groups 3 and 4, with a median weight of 104.5g. Numerous chicks in this group lost weight during the experiment, with one chick maintaining a very low weight of approximately 75g.
 
@@ -103,18 +131,18 @@ Conversely, chicks eating Diet 3 or 4 tended to gain the most weight during the 
 ### 1. _Read the dataset in R, obtain the structure of the dataset and discuss._
 
 ```
-> cleaning <- read.csv("Cleaning.csv")
-str(cleaning)
+> cleaning <- read.csv("Cleaning.csv", stringsAsFactors=T)
+> str(cleaning)
 'data.frame':   101 obs. of  16 variables:
  $ ID     : int  1 2 3 4 5 6 7 8 9 10 ...
  $ AGE    : int  18 23 39 24 27 26 26 26 28 24 ...
- $ GENDER : chr  "Male" "Female" "Male" "Male" ...
+ $ GENDER : Factor w/ 2 levels "Female","Male": 2 1 2 2 2 2 1 1 2 1 ...
  $ YRSTUDY: int  3 7 10 6 16 16 10 8 9 6 ...
  $ Q1     : int  8 15 9 10 10 10 14 12 9 10 ...
  $ Q2     : int  14 21 12 15 20 16 18 17 15 13 ...
  $ Q3     : int  16 20 14 15 21 16 16 11 21 23 ...
- $ Q4     : chr  "19" "23" "12" "18" ...
- $ Q5     : chr  "18" "19" "22" "17" ...
+ $ Q4     : Factor w/ 22 levels "#NA","11","12",..: 10 14 3 9 15 9 7 22 14 15 ...
+ $ Q5     : Factor w/ 22 levels "#NA","10","11",..: 11 12 15 10 18 11 2 10 17 12 ...
  $ Q6     : int  14 16 20 15 23 18 11 10 23 19 ...
  $ Q7     : int  21 20 16 20 29 20 15 18 21 24 ...
  $ Q8     : int  27 22 22 29 26 27 27 21 23 23 ...
@@ -123,17 +151,17 @@ str(cleaning)
  $ Q11    : int  22 18 23 27 21 25 24 24 26 19 ...
  $ Q12    : int  14 17 15 13 24 14 13 10 22 18 ...
 ```
-The above dataset describes student scores on a series of 12 questions, on a scale of 0 to 40, along with their age, gender, and years of education. The effects of years of study on each question's score varies by age and gender.
+The above dataset describes student scores on a series of 12 questions, on an integer scale of 0 to 40, along with the student's age, gender, and number of years in education. The effects of years of study on each question's score varies by age and gender.
 
 There are 101 observations and 16 variables in the dataset:
 
-- There are 13 numeric variables, namely ID, AGE, YRSTUDY, Q1 to Q3, and Q6 to Q12. ID contains a number that identifies the student by an integer. AGE contains the student's age in years. YRSTUDY contains the current year of education the student is studying in. Q1 to Q3 and Q6 to Q12 contains the student's received score on the relevant question, on a scale from 0 to 40.
+- There are 13 numeric variables, namely ID, AGE, YRSTUDY, Q1 to Q3, and Q6 to Q12. ID identifies each student by an integer. AGE contains the student's age in years. YRSTUDY contains the current year of education the student is studying in. Q1 to Q3 and Q6 to Q12 contains the student's received score on the relevant question, on a scale from 0 to 40.
 
-- There are 3 nominal variables, namely GENDER, Q4, and Q5. GENDER contains two values, namely "Male" and "Female". Q4 and Q5 contain student scores on these questions ranked on a scale of 0 to 40.
+- There are 3 factor variables, namely GENDER, Q4, and Q5. GENDER contains two levels, namely "Male" and "Female". Q4 and Q5 contain student scores on these questions ranked on a scale of 0 to 40.
 
 ### 2. _Discuss and report any missing values and unusual characters in the dataset._
 
-There is a problem with how Q4 and Q5 were read into the dataframe, as they should be numeric variables instead of nominal. We can search for unexpected characters (not digits) in these questions:
+There is a problem with how Q4 and Q5 were read into the dataframe, as they should be numeric variables instead of factors. We can search for unexpected values (not digits) in these questions:
 
 ```
 > attach(cleaning)
@@ -142,49 +170,49 @@ There is a problem with how Q4 and Q5 were read into the dataframe, as they shou
 > Q5[grep("[^0-9]", Q5)]
 [1] "#NA"
 ```
-This demonstrates the problem, there are unexpected character values, ("#NA") which cause these variables to be intepreted as character values instead. This can be remedied by converting these scores to integers, whilst converting any values containing special characters to NA (missing values):
+This demonstrates the problem, there are unusual character values, ("#NA") which cause these variables to be intepreted as factors. This can be resolved by converting any "#NA" characters to NA, allowing conversion of Q4 and Q5 to integer types:
 
 ```
 > cleaning$Q4 <- as.integer(ifelse(Q4 == "#NA", NA, Q4))
 > cleaning$Q5 <- as.integer(ifelse(Q5 == "#NA", NA, Q5))
 > detach(cleaning)
-attach(cleaning)
+> attach(cleaning)
 ```
 
 ```
 > summary(cleaning)
-       ID           AGE           GENDER             YRSTUDY      
- Min.   :  1   Min.   :18.00   Length:101         Min.   : 0.000  
- 1st Qu.: 26   1st Qu.:19.00   Class :character   1st Qu.: 3.000  
- Median : 51   Median :23.00   Mode  :character   Median : 6.000  
- Mean   : 51   Mean   :23.35                      Mean   : 6.634  
- 3rd Qu.: 76   3rd Qu.:26.00                      3rd Qu.: 9.000  
- Max.   :101   Max.   :39.00                      Max.   :20.000  
-                                                                  
-       Q1              Q2              Q3              Q4       
- Min.   : 7.00   Min.   : 9.00   Min.   :10.00   Min.   : 9.00  
- 1st Qu.: 9.00   1st Qu.:13.00   1st Qu.:15.00   1st Qu.:15.75  
- Median :10.00   Median :15.00   Median :18.00   Median :20.00  
- Mean   :10.94   Mean   :15.61   Mean   :18.02   Mean   :19.11  
- 3rd Qu.:12.00   3rd Qu.:19.00   3rd Qu.:21.00   3rd Qu.:23.00  
- Max.   :19.00   Max.   :28.00   Max.   :30.00   Max.   :30.00  
-                 NA's   :1                       NA's   :1      
-       Q5               Q6              Q7              Q8       
- Min.   : 10.00   Min.   : 9.00   Min.   :13.00   Min.   :19.00  
- 1st Qu.: 15.00   1st Qu.:13.00   1st Qu.:16.00   1st Qu.:24.00  
- Median : 18.00   Median :16.00   Median :20.00   Median :26.00  
- Mean   : 19.23   Mean   :16.19   Mean   :20.29   Mean   :25.45  
- 3rd Qu.: 21.00   3rd Qu.:19.00   3rd Qu.:22.00   3rd Qu.:28.00  
- Max.   :120.00   Max.   :26.00   Max.   :52.00   Max.   :32.00  
- NA's   :1                                                       
-       Q9             Q10             Q11             Q12       
- Min.   :16.00   Min.   :22.00   Min.   :13.00   Min.   :10.00  
- 1st Qu.:24.00   1st Qu.:23.00   1st Qu.:21.00   1st Qu.:15.00  
- Median :26.00   Median :24.00   Median :23.00   Median :17.50  
- Mean   :25.59   Mean   :23.73   Mean   :23.01   Mean   :17.61  
- 3rd Qu.:27.00   3rd Qu.:25.00   3rd Qu.:25.00   3rd Qu.:20.00  
- Max.   :33.00   Max.   :26.00   Max.   :52.00   Max.   :26.00  
-                 NA's   :1       NA's   :1       NA's   :1 
+       ID           AGE           GENDER      YRSTUDY             Q1       
+ Min.   :  1   Min.   :18.00   Female:69   Min.   : 0.000   Min.   : 7.00  
+ 1st Qu.: 26   1st Qu.:19.00   Male  :32   1st Qu.: 3.000   1st Qu.: 9.00  
+ Median : 51   Median :23.00               Median : 6.000   Median :10.00  
+ Mean   : 51   Mean   :23.35               Mean   : 6.634   Mean   :10.94  
+ 3rd Qu.: 76   3rd Qu.:26.00               3rd Qu.: 9.000   3rd Qu.:12.00  
+ Max.   :101   Max.   :39.00               Max.   :20.000   Max.   :19.00  
+                                                                           
+       Q2              Q3              Q4              Q5        
+ Min.   : 9.00   Min.   :10.00   Min.   : 9.00   Min.   : 10.00  
+ 1st Qu.:13.00   1st Qu.:15.00   1st Qu.:15.75   1st Qu.: 15.00  
+ Median :15.00   Median :18.00   Median :20.00   Median : 18.00  
+ Mean   :15.61   Mean   :18.02   Mean   :19.11   Mean   : 19.23  
+ 3rd Qu.:19.00   3rd Qu.:21.00   3rd Qu.:23.00   3rd Qu.: 21.00  
+ Max.   :28.00   Max.   :30.00   Max.   :30.00   Max.   :120.00  
+ NA's   :1                       NA's   :1       NA's   :1       
+       Q6              Q7              Q8              Q9       
+ Min.   : 9.00   Min.   :13.00   Min.   :19.00   Min.   :16.00  
+ 1st Qu.:13.00   1st Qu.:16.00   1st Qu.:24.00   1st Qu.:24.00  
+ Median :16.00   Median :20.00   Median :26.00   Median :26.00  
+ Mean   :16.19   Mean   :20.29   Mean   :25.45   Mean   :25.59  
+ 3rd Qu.:19.00   3rd Qu.:22.00   3rd Qu.:28.00   3rd Qu.:27.00  
+ Max.   :26.00   Max.   :52.00   Max.   :32.00   Max.   :33.00  
+                                                                
+      Q10             Q11             Q12       
+ Min.   :22.00   Min.   :13.00   Min.   :10.00  
+ 1st Qu.:23.00   1st Qu.:21.00   1st Qu.:15.00  
+ Median :24.00   Median :23.00   Median :17.50  
+ Mean   :23.73   Mean   :23.01   Mean   :17.61  
+ 3rd Qu.:25.00   3rd Qu.:25.00   3rd Qu.:20.00  
+ Max.   :26.00   Max.   :52.00   Max.   :26.00  
+ NA's   :1       NA's   :1       NA's   :1
 ```
 
 ```
@@ -206,11 +234,20 @@ Furthermore, some questions contain unusually high values, given that the score 
 Excluding the converted "#NA" values, there were 4 missing values (Q2, Q10, Q11, Q12).
 
 ### 3. _Replace unusual values and missing values if exists, in the dataset with NA._
-
+>
 ```
 > cleaning$Q5 <- replace(Q5, Q5>40, NA)
-cleaning$Q7 <- replace(Q7, Q7>40, NA)
-cleaning$Q11 <- replace(Q11, Q11>40, NA)
+> cleaning$Q7 <- replace(Q7, Q7>40, NA)
+> cleaning$Q11 <- replace(Q11, Q11>40, NA)
+
+# this was already done in the previous part to help identify data inconsistencies
+> cleaning$Q4 <- as.integer(ifelse(Q4 == "#NA", NA, Q4))
+> cleaning$Q5 <- as.integer(ifelse(Q5 == "#NA", NA, Q5))
+
+> detach(cleaning)
+> attach(cleaning)
+
+# verifying that all non-NA scores are within 0 - 40
 > apply(cleaning[seq(5, 16)], 2, max, na.rm=T)
  Q1  Q2  Q3  Q4  Q5  Q6  Q7  Q8  Q9 Q10 Q11 Q12 
  19  28  30  30  29  26  31  32  33  26  34  26
@@ -266,6 +303,7 @@ cleaning$Q12 <- replace(Q12, is.na(Q12), mean(Q12, na.rm=T))
 ### 1. _Read the dataset “Fuel\_Cons\_2022.csv” in R, obtain the structure of the dataset and discuss it._
 
 ```
+> fuel <- read.csv("Fuel_Cons_2022.csv", stringsAsFactors=T)
 > str(fuel)
 'data.frame':   967 obs. of  11 variables:
  $ Make        : Factor w/ 39 levels "Acura","Alfa Romeo",..: 1 1 1 1 1 1 1 1 1 1 ...
@@ -280,13 +318,23 @@ cleaning$Q12 <- replace(Q12, is.na(Q12), mean(Q12, na.rm=T))
  $ Rating_Co2  : int  6 4 4 5 5 5 6 5 5 5 ...
  $ Smog_Rating : int  3 3 3 3 6 6 7 3 3 3 ...
  ```
-The above dataset is an extract of fuel consumption ratings and carbon dioxide emissions of various light-duty vehicles sold in Canada. The effects of the model of the light-duty vehicle sold in Canada on overall fuel consumption varies by the transmission, fuel type, and the number of cylinders.
+The above dataset is an extract of fuel consumption ratings and carbon dioxide emissions of various light-duty vehicles sold in Canada. A light-duty vehicle has a maximum gross weight of 4535kg. The effects of the vehicle model on overall fuel consumption varies by the transmission, fuel type, and the number of cylinders.
 
 There are 967 observations and 11 variables:
 
-- There are 7 numeric variables, namely Cylinders, City_Fuel, Hwy_Fuel, Comb_Fuel, Emission_co2, Rating_Co2, and Smog_Rating. Cylinders contains the number of pistons in the vehicle's engine. City_Fuel and Hwy_Fuel measure the fuel economy of vehicle in cities and on the highways in mpg. Comb_Fuel contains the average of City_Fuel and Hwy_Fuel. Emission_co2 contains the exhaust emissions in g/km, with Rating_Co2 rating this output on a scale of 1 to 10. Smog_Rating rates the amount of smog-causing pollution the exhaust produces on a scale of 1 to 10.
+- There are 7 numeric variables, namely Cylinders, City_Fuel, Hwy_Fuel, Comb_Fuel, Emission_co2, Rating_Co2, and Smog_Rating. 
+  - Cylinders contains the number of pistons in the vehicle's engine.
+  - City_Fuel measures the fuel economy of the vehicle in cities in L/100km.
+  - Hwy_Fuel measures the fuel economy of the vehicle on highways in L/100km.
+  - Comb_Fuel contains the average of City_Fuel and Hwy_Fuel.
+  - Emission_co2 contains the exhaust emissions in g/km, with Rating_Co2 rating this output on a scale of 1 to 10.
+  - Smog_Rating rates the amount of smog-causing pollution the exhaust produces on a scale of 1 to 10.
 
-- There are 4 factor variables, namely Make (39 levels), Model (726 levels), Transmission (24 levels), and Fuel_type (4 levels). Make contains the name of the vehicle brand. Model contains the name of the vehicle. Transmission describes the gearbox, with A = automatic, AM = automated manual, AS = automatic with select shift, AV = continuously variable, and M = manual. The ending number indicates how many gears the transmission has (3 to 10). Fuel_type contains 4 types of fuel, namely X = regular gasoline, Z = premium gasoline, D = diesel, and E = E85.
+- There are 4 factor variables, namely Make (39 levels), Model (726 levels), Transmission (24 levels), and Fuel_type (4 levels).
+  - Make contains the name of the vehicle brand.
+  - Model contains the name of the vehicle.
+  - Transmission describes the gearbox, with A = automatic, AM = automated manual, AS = automatic with select shift, AV = continuously variable, and M = manual. The ending number indicates how many gears the transmission has (3 to 10).
+  - Fuel_type contains 4 types of fuel, namely X = regular gasoline, Z = premium gasoline, D = diesel, and E = E85.
 
 ### 2. _Produce a frequency table for the variable “Fuel\_type” and discuss it._
 
@@ -349,7 +397,7 @@ group: 16
 X1    1 2   27 0.28     27      27 0.3 26.8 27.2   0.4    0    -2.75 0.2
 ```
 
-The City_Fuel mean consumption by Cylinders ranges from 8.52 mpg to 27 mpg. There is a definite positive trend in city fuel consumption and number of cylinders, with each increase in cylinders resulting in a higher mean fuel consumption. Light-duty vehicles with more cylinders tend to consume higher amounts of fuel in the city.
+The City_Fuel mean consumption by Cylinders ranges from 8.52 to 27L/100km. There is a clear positive trend in city fuel consumption and number of cylinders, with each increase in cylinders resulting in a higher mean fuel consumption. Light-duty vehicles sold in Canada with more cylinders tend to consume higher amounts of fuel in the city.
 
 ### 5. _List the records of the vehicles where Smog\_Rating= 7, Transmission=” A6” and Fuel\_type=”Z”_
 
@@ -365,7 +413,7 @@ No records were found with this criteria.
 ### 6. _Obtain a parallel boxplot for the variable “Emission\_co2” by “Fuel\_type” variable and discuss._
 
 ```
-ggplot(fuel, aes(x = Fuel_type, y = Emission_co2)) + 
+> ggplot(fuel, aes(x = Fuel_type, y =  Emission_co2)) + 
         geom_boxplot() + 
         ggtitle("CO2 emmissions by fuel type") +
         xlab("Fuel type") +
@@ -394,17 +442,17 @@ group: Z
 X1    1 481 272.8 59.47    263  267.08 53.37 167 537   370  1.2     2.47 2.71
 ```
 
-As seen from the boxplot, fuel type X causes the lowest amount of CO2 emissions, and is approximately symmetric (skew = 0.15), with a median emission of 229g/km. Fuel type Z has the second lowest CO2 emissions with a median emission of 263g/km, and is a positively skewed distribution (skew = 1.2), with the most outliers (6). It also has the greatest variance out of all the fuel types.
+As seen from the boxplot, fuel type X causes the lowest amount of CO2 emissions, and is approximately symmetric (skew = 0.15), with a median emission of 229g/km. Fuel type Z has the second lowest CO2 emissions with a median emission of 263g/km, and is a positively skewed distribution (skew = 1.2), with the most outliers (6) that are the highest CO2 emmission values in the dataset. Fuel type Z also has the greatest variance amongst all 4 fuel types.
 
-Meanwhile, fuel type D has the second highest CO2 emissions, with a median emission of 264.5g/km, and is positively skewed (skew = 1.16), with a single outlier. Fuel type E has the highest CO2 emissions, with a median emission of 298g/gm, and is negatively skewed, (skew = -1.11) with 2 outliers.
+Meanwhile, fuel type D has the second highest CO2 emissions, with a median emission of 264.5g/km, and is positively skewed (skew = 1.16), with a single outlier. Fuel type E has the highest CO2 emissions, with a median emission of 298g/km, and is negatively skewed, (skew = -1.11) with 2 outliers.
 
 ### 7. _Obtain a histogram for variable “Comb\_Fuel” when Transmission = ”A8” and discuss._
 
 ```
-ggplot(fuel[Transmission=="A8",], aes(x = Comb_Fuel)) + 
+> ggplot(fuel[Transmission=="A8",], aes(x = Comb_Fuel)) + 
         geom_histogram(binwidth=1) + 
         ggtitle("Combined fuel consumption for A8 transmissions") +
-        xlab("Comb_Fuel, mpg") +
+        xlab("Comb_Fuel, L/100km") +
         ylab("Frequency")
 ```
 
@@ -417,13 +465,13 @@ ggplot(fuel[Transmission=="A8",], aes(x = Comb_Fuel)) +
 X1    1 77 11.95 1.8   11.8    11.9 1.48 7.9 17.7   9.8 0.38     0.52 0.21
 ```
 
-As seen from the histogram, "Comb_Fuel" when "Transmission" = "A8" is approximately normal, (skew = 0.38) with a mean overall fuel consumption of 11.95mpg (sd = 1.8). The overall consumption ranges from 7.9mpg to 17.7mpg (range = 9.8).
+As seen from the histogram, "Comb_Fuel" when "Transmission" = "A8" is approximately normal, (skew = 0.38) with a mean overall fuel consumption of 11.95L/100 km (sd = 1.8). The overall consumption ranges from 7.9L/100 km to 17.7L/100 km (range = 9.8).
 
 ### 8. _Create a new variable Compare = Emission\_co2/Cylinders*100 attach it to the dataset “Fuel\_Cons\_2022.csv”._
 
 ```
 > fuel$Compare <- Emission_co2/Cylinders*100
-head(fuel)
+> head(fuel)
    Make             Model Cylinders Transmission Fuel_type City_Fuel Hwy_Fuel
 1 Acura               ILX         4          AM8         Z       9.9      7.0
 2 Acura        MDX SH-AWD         6          AS9         Z      12.3      9.2
@@ -445,8 +493,8 @@ head(fuel)
 ### _You are expected to produce graphs and summary statistics to decide which variables are possibly associated with diabetes. All summary statistics and graphs should be referred to support with your decision._
 
 ```
-diabetes <- read.csv("diabetes.csv")
-str(diabetes)
+> diabetes <- read.csv("diabetes.csv")
+> str(diabetes)
 
 'data.frame':   768 obs. of  9 variables:
  $ Pregnancies             : int  6 1 8 1 0 5 3 10 2 8 ...
@@ -459,7 +507,7 @@ str(diabetes)
  $ Age                     : int  50 31 32 21 33 30 26 29 53 54 ...
  $ Outcome                 : int  1 0 1 0 1 0 1 0 1 1 ...
 ```
-The above dataset describes medical diagnostics from female patients aged 21 years or older of Pima Indian descent, sourced from the National Institute of Diabetes and Digestive and Kidney Diseases.
+The above dataset describes medical predictors from female patients aged 21 years or older of Pima Indian descent, sourced from the National Institute of Diabetes and Digestive and Kidney Diseases.
 
 There are 768 observations and 9 variables:
 
@@ -467,16 +515,17 @@ There are 768 observations and 9 variables:
   - Pregnancies is the number of times the patient has been pregnant. 
   - Glucose is the Plasma Glucose concentration in a 2 hour oral glucose tolerance test.
   - BloodPressure contains the patient's Diastolic Blood Pressure, measured in mm hg.
-  - SkinThickness contains the Triceps skin fold thickness in mm. 
+  - SkinThickness contains the Triceps skin fold thickness in mm.
   - Insulin contains the 2 hour serum insulin, measured in mu U/ml.
   - BMI contains the Body Mass Index of the patient.
   - Age contains the patient's age in years.
-  - DiabetesPedigreeFunction scores the likelihood the patient has diabetes based on family history. "Outcome" indicates whether the patient has Diabetes, being either 0 or 1.
+  - DiabetesPedigreeFunction scores the likelihood the patient has diabetes based on family history.
+  - Outcome indicates whether the patient has Diabetes, being either 0 or 1.
 
-The effects of age on whether Pima Indian women aged 21 years or older are diabetic varies by number of pregnancies, Plasma Glucose concentration, blood pressure, insulin levels, BMI, and family history.
+The effects of age on whether patients are diabetic varies by Plasma Glucose concentration, and family history.
 
 ```
-ggplot(diabetes, aes(y = Age, group = Outcome, x = Outcome)) + 
+> ggplot(diabetes, aes(y = Age, group = Outcome, x = Outcome)) + 
         geom_boxplot() +
         ggtitle("Diabetes by age", subtitle = "Diabetic patients are older") +
         xlab("Diabetic = 1") +
@@ -499,7 +548,7 @@ X1    1 268 37.07 10.97     36   36.28 11.86  21  70    49 0.58    -0.38 0.67
 From the above boxplot, diabetic patients have the higher median age of 36 years old, with a slight positive skew (skew = 0.58). Meanwhile, non-diabetic patients have a median age of 27 years of age, and are more positively skewed (skew = 1.56). There are many non-diabetic outliers. Both plots have a similar variance.
 
 ```
-ggplot(diabetes, aes(x = Outcome, group = Outcome, y = Glucose)) +
+> ggplot(diabetes, aes(x = Outcome, group = Outcome, y = Glucose)) +
         geom_boxplot() +
         ggtitle("Glucose vs Diabetes", subtitle = "Diabetic patients have higher glucose levels") +
         xlab("Diabetic = 1") +
@@ -520,16 +569,41 @@ group: 1
 X1    1 268 141.26 31.94    140  141.69 35.58   0 199   199 -0.49     1.35 1.95
 ```
 
-Diabetic patients also have higher "Glucose", with a median concentration of 140, and an approximately normal distribution (skew = -0.49). 
+Both non-diabetic and diabetic patients have an approximately normal distribution of age (skew = 0.17, -0.49). Non-diabetic patients have the lower mean Glucose concentration of 109.98, whereas diabetic patients have a mean concentration of 141.26. Non-diabetic patients have many outliers past the upper fence, and a single lower outlier.
 
 ```
-ggplot(diabetes, aes(x = Age, y = Glucose)) +
+ggplot(diabetes, aes(x = Outcome, group = Outcome, y = DiabetesPedigreeFunction)) +
+        geom_boxplot() +
+        ggtitle("Family history vs Diabetes", subtitle = "Family history is a poor predictor of Diabetes") +
+        xlab("Diabetic = 1") +
+        ylab("DiabetesPedigreeFunction")
+```
+
+![](./plots/Q4_family_history_boxplot.png)
+
+```
+> describeBy(DiabetesPedigreeFunction, Outcome)
+
+ Descriptive statistics by group 
+group: 0
+   vars   n mean  sd median trimmed  mad  min  max range skew kurtosis   se
+X1    1 500 0.43 0.3   0.34    0.38 0.22 0.08 2.33  2.25 1.99     6.01 0.01
+------------------------------------------------------------ 
+group: 1
+   vars   n mean   sd median trimmed  mad  min  max range skew kurtosis   se
+X1    1 268 0.55 0.37   0.45     0.5 0.31 0.09 2.42  2.33  1.7      4.4 0.02
+```
+
+Conversely, family history is a poor predictor of Diabetes. Non-diabetic patients having a median diabetes pedigree of 0.34, and a positive skew (skew = 1.99). Diabetic patients have a median pedigree of 0.45, and is also positively skewed (skew = 1.7). Both groups have high outliers, with many more non-diabetic outliers. Both groups have a somewhat similar variance, with diabetic patients having a slightly larger IQR.
+
+```
+> ggplot(diabetes, aes(x = Age, y = Glucose)) +
         geom_point() +
         facet_wrap(~ Outcome, nrow = 1) +
-        ggtitle("Glucose concentration by age and Diabetes", subtitle="Group 1 (Diabetic) have higher glucose levels") +
+        ggtitle("Comparing diabetic Glucose and Age", subtitle="Group 1 (Diabetic) are older with higher glucose levels") +
         xlab("Age, years") +
         ylab("Glucose concentration")
 ```
 ![](./plots/Q4_glucose_age_scatter.png)
 
-Ultimately, the diabetes "Outcome" for Pima Indian women aged 21 years or older can be best described by "Glucose" concentration and "Age". Older patients with higher Glucose concentration levels are more likely to have diabetes.
+Ultimately, the diabetes Outcome for Pima Indian women aged 21 years or older can be best described by Glucose concentration and Age. Older patients with higher Glucose concentration levels are more likely to have diabetes.

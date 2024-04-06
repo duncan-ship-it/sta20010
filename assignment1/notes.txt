@@ -1,7 +1,44 @@
-Q1
+$Q2
+   vars   n  mean   sd median trimmed  mad min max range skew kurtosis   se
+X1    1 100 15.61 4.27     15   15.46 4.45   9  28    19 0.38    -0.28 0.43
 
-- inconsistent times for weight recordings
+$Q4
+   vars   n  mean   sd median trimmed  mad min max range  skew kurtosis   se
+X1    1 100 19.11 4.57     20   19.14 4.45   9  30    21 -0.07    -0.59 0.46
 
-- inconsistent number of recordings per chick
+$Q5
+   vars  n  mean   sd median trimmed  mad min max range skew kurtosis   se
+X1    1 99 18.21 4.34     18   18.11 4.45  10  29    19 0.18    -0.47 0.44
 
-- inconsistent naming conventions: "weight", "Time" (nit)
+$Q7
+   vars   n  mean sd median trimmed  mad min max range skew kurtosis  se
+X1    1 100 19.97  4     20   19.68 4.45  13  31    18 0.41    -0.29 0.4
+
+$Q10
+   vars   n  mean   sd median trimmed  mad min max range skew kurtosis  se
+X1    1 100 23.73 1.04     24   23.75 1.48  22  26     4 0.07    -0.84 0.1
+
+$Q11
+   vars  n  mean   sd median trimmed  mad min max range skew kurtosis   se
+X1    1 99 22.72 3.58     23   22.68 2.97  13  34    21 0.17     0.31 0.36
+
+$Q12
+   vars   n  mean   sd median trimmed  mad min max range skew kurtosis   se
+X1    1 100 17.61 3.21   17.5   17.52 3.71  10  26    16 0.23    -0.28 0.32
+
+
+
+![](./plots/Q4_family_history_boxplot.png)
+
+```
+ describeBy(DiabetesPedigreeFunction, Outcome)
+
+ Descriptive statistics by group 
+group: 0
+   vars   n mean  sd median trimmed  mad  min  max range skew kurtosis   se
+X1    1 500 0.43 0.3   0.34    0.38 0.22 0.08 2.33  2.25 1.99     6.01 0.01
+------------------------------------------------------------ 
+group: 1
+   vars   n mean   sd median trimmed  mad  min  max range skew kurtosis   se
+X1    1 268 0.55 0.37   0.45     0.5 0.31 0.09 2.42  2.33  1.7      4.4 0.02
+```

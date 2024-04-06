@@ -38,6 +38,14 @@ summary(ChickWeight)
 
 describeBy(weight, Diet)
 
+# plotting distribution of weights by time
+
+ggplot(ChickWeight, aes(y = weight, group = Time, x = Time)) + 
+        geom_boxplot() +
+        ggtitle("Chick Weight over Time", subtitle = "Weight variance increases rapidly over time") +
+        xlab("Time, days since birth") +
+        ylab("Weight, grams")
+
 # plotting line graphs of weight by Diet over Time
 
 ggplot(ChickWeight, aes(x = Time, y = weight, group = Chick)) + 
@@ -117,6 +125,7 @@ detach(cleaning)
 # Part 1: reading in dataset
 
 fuel <- read.csv("Fuel_Cons_2022.csv", stringsAsFactors=T)
+str(fuel)
 
 # Part 2: plotting frequency table
 
@@ -156,7 +165,7 @@ describeBy(Emission_co2, Fuel_type)
 ggplot(fuel[Transmission=="A8",], aes(x = Comb_Fuel)) + 
         geom_histogram(binwidth=1) + 
         ggtitle("Combined fuel consumption for A8 transmissions") +
-        xlab("Comb_Fuel, mpg") +
+        xlab("Comb_Fuel, L/100km") +
         ylab("Frequency")
 
 describe(fuel[Transmission=="A8",]$Comb_Fuel)
@@ -176,6 +185,12 @@ detach(fuel)
 diabetes <- read.csv("diabetes.csv")
 
 attach(diabetes)
+
+# data inconsistencies
+
+summary(Glucose)
+
+summary()
 
 apply(is.na(diabetes), 2, sum)  # no missing values
 
@@ -229,8 +244,6 @@ ggplot(diabetes, aes(x = Outcome, group = Outcome, y = DiabetesPedigreeFunction)
 
 describeBy(DiabetesPedigreeFunction, Outcome)
 
-# 
-
 ggplot(diabetes, aes(x = Age, y = SkinThickness)) +
         geom_point() +
         facet_wrap(~ Outcome, nrow = 1) +
@@ -250,7 +263,7 @@ ggplot(diabetes, aes(x = Age, y = Insulin)) +
 ggplot(diabetes, aes(x = Age, y = Glucose)) +
         geom_point() +
         facet_wrap(~ Outcome, nrow = 1) +
-        ggtitle("Glucose concentration by age and Diabetes", subtitle="Group 1 (Diabetic) have higher glucose levels") +
+        ggtitle("Comparing diabetic Glucose and Age", subtitle="Group 1 (Diabetic) patients are older with higher glucose levels") +
         xlab("Age, years") +
         ylab("Glucose concentration")
 
