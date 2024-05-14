@@ -237,9 +237,9 @@ _The following table was derived from the Business Review Weekly’s list of 132
 
 | Type of company | NSW | VIC | QLD | Other |
 |-|-|-|-|-|
-| Finance | 18 | 14 | 9 | 7 |
-| Software | 21 | 8 | 7 | 5 |
-| Other | 8 | 11 | 9 | 15 |
+| **Finance** | 18 | 14 | 9 | 7 |
+| **Software** | 21 | 8 | 7 | 5 |
+| **Other** | 8 | 11 | 9 | 15 |
 
 _Based on this table, if a company is chosen at random, what is the probability (correct to 4 decimal places) that:_
 
