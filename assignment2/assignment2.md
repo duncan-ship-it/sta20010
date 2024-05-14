@@ -41,11 +41,11 @@ White 450.5  374.9 215.5   339.1
 
 ### _c. State appropriate hypotheses and then carry out the relevant hypothesis test, at the 5% level of significance, to determine if there is an association between the Egg size and Type of egg._
 
-Null hypothesis: There is no significant correlation between Egg size and Type of egg.
+$H_0$ (Null hypothesis): In the population, the Egg size and Type of egg are independent.
 
-Alternative hypothesis: There is a significant correlation between Egg size and Type of egg.
+$H_1$ (Alternative hypothesis): In the population, the Egg size and Type of egg are dependent.
 
-A Chi-square test was carried out at the 95% confidence level. It is assumed that egg purchase observations are independent of one another.
+A Chi-square test was carried out at the 95% confidence level:
 
 ```
 > chisq.test(eggs)
@@ -55,7 +55,7 @@ A Chi-square test was carried out at the 95% confidence level. It is assumed tha
 data:  eggs
 X-squared = 54.149, df = 3, p-value = 1.043e-11
 ```
-The p-value was less than 0.05  (p < 0.05), therefore there is a significant association between Egg size and Type of egg.
+The p-value was less than 0.001 (p < 0.001), thus the null hypothesis is not rejected. At 5% level of significance, data does not provide sufficient evidence to conclude that Egg size and Type of egg are dependent.
 
 ## Question 2
 
@@ -197,7 +197,7 @@ $$ S\\_X\\_Y = {\sum\\_1^n(X - \bar{X})(Y - \bar{Y}) \over n - 1}, S\\_X = \sqrt
 
 _and $n$ is the sample size and $\bar{X}$ and $\bar{Y}$ are the sample means for the variables $X$ and $Y$._
 
-```
+```r
 > correlation_s <- function(x, y, n) {
     sm_x <- sum(x) / n
     sm_y <- sum(y) / n
@@ -225,11 +225,112 @@ _The dataset was extracted from a study investigated the adequacy of the AQ and 
 
 ### _a. It is often felt that on average female have better quality of life than male counterpart. Check all the assumptions and choose an appropriate hypothesis test to investigate this contention using the variables from your data._
 
+$H_0$ (Null hypothesis): In the population, female mean quality of life is less than or equal to mean male quality of life.
 
+$H_1$ (Alternative hypothesis): In the population, female mean quality of life is greater than mean male quality of life.
+
+The following assumptions need to be verified:
+  - Samples have approximately equal variations, and 
+  - Samples are drawn from normally distributed populations
+
+```
+> require("ggplot2")
+> q6 <- read.csv('Assignment2_Q6.csv')
+> ggplot(q6, aes(y = Q22, x = X)) + 
+        geom_boxplot() +
+        ggtitle("Q22 (quality of life) responses by gender", subtitle = "Male responses appear negatively skewed") +
+        xlab("Gender") +
+        ylab("Score")
+
+> leveneTest(q6$Q22 ~ q6$X, data = q6)
+Levene's Test for Homogeneity of Variance (center = median)
+      Df F value Pr(>F)
+group  1  2.4901 0.1178
+      99
+```
+
+![q6a boxplot](./plots/Q6a_boxplot.png)
+
+```
+> shapiro.test(q6[q6$X == "Male", "Q22"])
+
+        Shapiro-Wilk normality test
+
+data:  q6[q6$X == "Male", "Q22"]
+W = 0.91286, p-value = 0.02666
+> shapiro.test(q6[q6$X == "Female", "Q22"])
+
+        Shapiro-Wilk normality test
+
+data:  q6[q6$X == "Female", "Q22"]
+W = 0.9824, p-value = 0.3922
+```
+As seen from the boxplot, Female and Male Q22 responses appear to have roughly equal variance, with the Levene test confirming this (p > 0.05). However, Male Q22 responses seem to be negatively skewed, whereas Female responses appear normal, as confirmed by the Shapiro-Wilk tests (Female p > 0.05, Male p < 0.05). Therefore, the assumption of normality is violated, and the non-parametric Mann-Whitney U test should be used instead:
+
+```
+> wilcox.test(q6$Q22 ~ q6$X, data=q6)
+
+        Wilcoxon rank sum test with continuity correction
+
+data:  q6$Q22 by q6$X
+W = 1290, p-value = 0.02533
+alternative hypothesis: true location shift is not equal to 0
+```
+The calculated p-value is 0.02533 < 0.05. Therefore, we reject $H_0$ in favour of $H_1$ at 5% level of significance.
+
+We could conclude that based on the samples considered, the population mean scores of quality of life are different to one another. Sample mean value for the female group is more than the male group, and the difference is statistically significant.
 
 ### _b. It is often felt that the on average female have more odd behaviours than male counterpart. Check all the assumptions and choose an appropriate hypothesis test to investigate this contention using two of the variables from your data._
 
+$H_0$ (Null hypothesis): In the population, female mean odd behaviour is less than or equal to mean male odd behaviour.
 
+$H_1$ (Alternative hypothesis): In the population, female mean odd behaviour is greater than mean male odd behaviour.
+
+The following assumptions need to be verified:
+  - Samples have approximately equal variations, and 
+  - Samples are drawn from normally distributed populations
+
+```
+> ggplot(q6, aes(y = Q10, x = X)) + 
+        geom_boxplot() +
+        ggtitle("Q10 (odd behaviour) responses by gender", subtitle = "Female responses appear positively skewed and slightly more varied") +
+        xlab("Gender") +
+        ylab("Score")
+
+> leveneTest(q6$Q10 ~ q6$X, data = q6)
+Levene's Test for Homogeneity of Variance (center = median)
+      Df F value Pr(>F)
+group  1  0.2368 0.6276
+      99
+```
+
+![q6b boxplot](./plots/Q6b_boxplot.png)
+
+
+```
+> shapiro.test(q6[q6$X == "Male", "Q10"])
+
+        Shapiro-Wilk normality test
+
+data:  q6[q6$X == "Male", "Q10"]
+W = 0.95887, p-value = 0.3482
+> shapiro.test(q6[q6$X == "Female", "Q10"])
+
+        Shapiro-Wilk normality test
+
+data:  q6[q6$X == "Female", "Q10"]
+W = 0.92439, p-value = 0.000277
+```
+
+
+```
+> wilcox.test(q6$Q10 ~ q6$X, data=q6)
+
+        Wilcoxon rank sum test with continuity correction
+
+data:  q6$Q10 by q6$X
+W = 823, p-value = 0.1766
+```
 
 ## Question 7
 
