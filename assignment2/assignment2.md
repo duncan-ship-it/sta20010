@@ -6,8 +6,8 @@ _A supermarket sells brown and white eggs in small, medium, large and extra-larg
 
 | Type of Egg | Small | Medium | Large | X-Large |
 |-|-|-|-|-|
-| Brown | 286 | 217 | 123 | 114 |
-| White | 406 | 359 | 208 | 407 |
+| **Brown** | 286 | 217 | 123 | 114 |
+| **White** | 406 | 359 | 208 | 407 |
 
 ### _a. Create a matrix with the above information._
 
@@ -23,11 +23,39 @@ White   406    359   208     407
 
 ### _b. Calculate the expected frequencies (correct to 1 decimal place), assuming no association between the egg size and type of egg._
 
+```
+get_expected <- function(mat, col, row) {
+  return(round(sum(mat[row,]) * sum(mat[,col]) / sum(mat), 1))
+}
 
+expected <- eggs
+
+expected['Brown', ] <- sapply(seq(1,4), get_expected, mat=eggs, row=1)
+expected['White', ] <- sapply(seq(1,4), get_expected, mat=eggs, row=2)
+
+expected
+      Small Medium Large X-Large
+Brown 241.5  201.1 115.5   181.9
+White 450.5  374.9 215.5   339.1
+```
 
 ### _c. State appropriate hypotheses and then carry out the relevant hypothesis test, at the 5% level of significance, to determine if there is an association between the Egg size and Type of egg._
 
+Null hypothesis: There is no significant correlation between Egg size and Type of egg.
 
+Alternative hypothesis: There is a significant correlation between Egg size and Type of egg.
+
+A Chi-square test was carried out at the 95% confidence level. It is assumed that egg purchase observations are independent of one another.
+
+```
+> chisq.test(eggs)
+
+        Pearson's Chi-squared test
+
+data:  eggs
+X-squared = 54.149, df = 3, p-value = 1.043e-11
+```
+The p-value was less than 0.05  (p < 0.05), therefore there is a significant association between Egg size and Type of egg.
 
 ## Question 2
 
