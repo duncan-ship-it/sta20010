@@ -64,29 +64,29 @@ _The probability that a student must stop at any one traffic light coming to Swi
 ### _a. What is the probability that a student stops at the first 5 traffic lights and do not stop at the remaining sets of traffic lights?_
 
 ```
-> dbinom(x=5, size=15, prob=0.3, log=F)
+> dbinom(5, 15, 0.3, log=F)
 [1] 0.2061304
 ```
 
 ### _b. What is the probability that a student will be stopped at 1 or more of the 15 sets of traffic lights?_
 
 ```
-> pbinom(0, size=15, prob=0.3, lower.tail=F)
+> pbinom(0, size=15, prob=0.3, log=F, lower.tail=F)
 [1] 0.9952524
 ```
 
 ### _c. What is the probability that a student will stop at least 5 set of traffic lights given that the student stopped at most 10 set of traffic lights?_
 
 ```
-> sum(dbinom(5:10, 15, 0.3))/sum(dbinom(5:15, 15, 0.3))
-[1] 0.9986125
+> sum(dbinom(5:10, 15, 0.3, log=F))/pbinom(10, 15, 0.3, log=F)
+[1] 0.4841622
 ```
 
 ### _d. What is the probability that a student stops at 3 of the first 5 traffic lights and stops at 5 of the remaining 10 sets of traffic lights?_
 
 ```
-> dbinom(8, 15, 0.3)
-[1] 0.03477001
+> dbinom(3, 5, 0.3, log=F)*dbinom(5, 10, 0.3, log=F)
+[1] 0.01361623
 ```
 
 ## Question 3
