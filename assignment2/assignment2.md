@@ -41,11 +41,11 @@ White 450.5  374.9 215.5   339.1
 
 ### _c. State appropriate hypotheses and then carry out the relevant hypothesis test, at the 5% level of significance, to determine if there is an association between the Egg size and Type of egg._
 
-$H_0$ (Null hypothesis): In the population, the Egg size and Type of egg are independent.
+H0 (Null hypothesis): In the population, the Egg size and Type of egg are independent.
 
-$H_1$ (Alternative hypothesis): In the population, the Egg size and Type of egg are dependent.
+H1 (Alternative hypothesis): In the population, the Egg size and Type of egg are dependent.
 
-A Chi-square test was carried out at the 95% confidence level:
+A Chi-square test was carried out at the 95% confidence level (a = 0.05, all cell counts are greater than 5):
 
 ```
 > chisq.test(eggs)
@@ -55,7 +55,7 @@ A Chi-square test was carried out at the 95% confidence level:
 data:  eggs
 X-squared = 54.149, df = 3, p-value = 1.043e-11
 ```
-The p-value was less than 0.001 (p < 0.001), thus the null hypothesis is not rejected. At 5% level of significance, data does not provide sufficient evidence to conclude that Egg size and Type of egg are dependent.
+The p-value was less than 0.001 (p < 0.001), thus the null hypothesis is not rejected. At 5% level of significance, data does not provide sufficient evidence to conclude that the Egg size and egg Type of purchased cartons are dependent.
 
 ## Question 2
 
@@ -146,7 +146,11 @@ _The number of vehicles pass a bridge in one-minute interval were recorded over 
 
 ```
 > expected$Actual <- table(passes$no_of.vec)
-> ggplot(expected, aes(Value)) + geom_line(aes(y = Expected, colour="Expected")) + geom_line(aes(y = Actual, colour="Actual")) + ylab("Frequency")
+> ggplot(expected, aes(Value)) + 
+        geom_line(aes(y = Expected, colour="Expected")) +
+        geom_line(aes(y = Actual, colour="Actual")) + 
+        ylab("Frequency") +
+        ggtitle("Actual vs expected vehicle frequencies")
 ```
 ![](./plots/Q3e_frequency_actual_vs_expected.png)
 
@@ -187,15 +191,7 @@ _Suppose birth weights of full-term babies have a normal distribution with mean 
 
 ## Question 5
 
-_Suppose a dataset has two numerical variables, $X$ and $Y$. Write a function in R to compute the sample correlation $r\\_X\\_Y$ between the two variables, $X$ and $Y$ is given by_
-
-$$ r\\_X\\_Y = {S\\_X\\_Y \over S\\_YS\\_X} $$
-
-_where_
-
-$$ S\\_X\\_Y = {\sum\\_1^n(X - \bar{X})(Y - \bar{Y}) \over n - 1}, S\\_X = \sqrt{\sum\\_1^n(X - \bar{X})^2 \over n - 1}, S\\_Y = \sqrt{\sum\\_1^n(Y - \bar{Y})^2 \over n - 1} $$
-
-_and $n$ is the sample size and $\bar{X}$ and $\bar{Y}$ are the sample means for the variables $X$ and $Y$._
+![](./q5_math.png)
 
 ```r
 > correlation_s <- function(x, y, n) {
@@ -225,12 +221,13 @@ _The dataset was extracted from a study investigated the adequacy of the AQ and 
 
 ### _a. It is often felt that on average female have better quality of life than male counterpart. Check all the assumptions and choose an appropriate hypothesis test to investigate this contention using the variables from your data._
 
-$H_0$ (Null hypothesis): In the population, female mean quality of life is less than or equal to mean male quality of life.
+H0 (Null hypothesis): In the population, female mean quality of life is equal to mean male quality of life.
 
-$H_1$ (Alternative hypothesis): In the population, female mean quality of life is greater than mean male quality of life.
+H1 (Alternative hypothesis): In the population, female mean quality of life is greater than mean male quality of life.
 
 The following assumptions need to be verified:
-  - Samples have approximately equal variations, and 
+  - Two groups are independent
+  - Samples have approximately equal variances, and 
   - Samples are drawn from normally distributed populations
 
 ```
@@ -265,29 +262,35 @@ W = 0.91286, p-value = 0.02666
 data:  q6[q6$X == "Female", "Q22"]
 W = 0.9824, p-value = 0.3922
 ```
-As seen from the boxplot, Female and Male Q22 responses appear to have roughly equal variance, with the Levene test confirming this (p > 0.05). However, Male Q22 responses seem to be negatively skewed, whereas Female responses appear normal, as confirmed by the Shapiro-Wilk tests (Female p > 0.05, Male p < 0.05). Therefore, the assumption of normality is violated, and the non-parametric Mann-Whitney U test should be used instead:
+From the study design, the two groups Male and Female are independent. As seen from the boxplot, Female and Male Q22 responses appear to have roughly equal variance, with the Levene test confirming this (0.1178 > 0.05). Male Q22 responses seem to be negatively skewed, whereas Female responses appear normal, as confirmed by the Shapiro-Wilk tests (Female p > 0.05, Male p < 0.05). However, the sample size is sufficiently large (101 > 30), thus it can be assumed the sample means are approximately normal. Therefore, a two sample t-test with pooled variance can be carried out:
 
 ```
-> wilcox.test(q6$Q22 ~ q6$X, data=q6)
+> t.test(q6$Q22 ~ q6$X, alternative="greater", var.equal=T)
 
-        Wilcoxon rank sum test with continuity correction
+        Two Sample t-test
 
 data:  q6$Q22 by q6$X
-W = 1290, p-value = 0.02533
-alternative hypothesis: true location shift is not equal to 0
+t = 2.5203, df = 99, p-value = 0.006662
+alternative hypothesis: true difference in means between group Female and group Male is greater than 0
+95 percent confidence interval:
+ 0.9057404       Inf
+sample estimates:
+mean in group Female   mean in group Male 
+            32.43243             29.77778 
 ```
-The calculated p-value is 0.02533 < 0.05. Therefore, we reject $H_0$ in favour of $H_1$ at 5% level of significance.
+The calculated p-value is 0.006662 < 0.05. Therefore, we reject the null hypothesis in favour of the alternative hypothesis at 5% level of significance.
 
-We could conclude that based on the samples considered, the population mean scores of quality of life are different to one another. Sample mean value for the female group is more than the male group, and the difference is statistically significant.
+We could conclude that based on the samples considered, the population mean scores of quality of life between the two genders are different to one another. Sample mean quality of life for the female group is more than the male group, and the difference is statistically significant.
 
 ### _b. It is often felt that the on average female have more odd behaviours than male counterpart. Check all the assumptions and choose an appropriate hypothesis test to investigate this contention using two of the variables from your data._
 
-$H_0$ (Null hypothesis): In the population, female mean odd behaviour is less than or equal to mean male odd behaviour.
+H0 (Null hypothesis): In the population, female mean odd behaviour is equal to male mean odd behaviour.
 
-$H_1$ (Alternative hypothesis): In the population, female mean odd behaviour is greater than mean male odd behaviour.
+H1 (Alternative hypothesis): In the population, female mean odd behaviour is greater than male mean odd behaviour.
 
 The following assumptions need to be verified:
-  - Samples have approximately equal variations, and 
+  - Two groups are independent
+  - Samples have approximately equal variances, and 
   - Samples are drawn from normally distributed populations
 
 ```
@@ -321,16 +324,25 @@ W = 0.95887, p-value = 0.3482
 data:  q6[q6$X == "Female", "Q10"]
 W = 0.92439, p-value = 0.000277
 ```
-
+From the study design, the two groups Male and Female are independent. As seen from the boxplot, the female variance appears slightly greater, however the Levene's test is 0.6276 > 0.05, thus the variances are approximately equal. Moreover, Male scores appear normal, whereas Female scores appear positively skewed, as confirmed by the Shapiro-Wilk tests (Male p 0.3482 > 0.05, Female p 0.000277 < 0.05). However, the sample size is sufficiently large (101 > 30), thus it can be assumed the sample means are approximately normal. Therefore, a two sample t-test using pooled variance can be carried out:
 
 ```
-> wilcox.test(q6$Q10 ~ q6$X, data=q6)
+> t.test(q6$Q10 ~ q6$X, alternative="greater", var.equal=T)
 
-        Wilcoxon rank sum test with continuity correction
+        Two Sample t-test
 
 data:  q6$Q10 by q6$X
-W = 823, p-value = 0.1766
+t = -1.2268, df = 99, p-value = 0.8886
+alternative hypothesis: true difference in means between group Female and group Male is greater than 0
+95 percent confidence interval:
+ -3.001315       Inf
+sample estimates:
+mean in group Female   mean in group Male 
+            13.24324             14.51852
 ```
+The calculated p value is 0.8886 > 0.05. Therefore, we reject the alternative hypothesis in favour of the null hypothesis at 5% level of significance.
+
+We could conclude that based on the samples considered, the population mean scores of odd behaviour between the two genders are not different to one another. Sample mean odd behaviour for the male group is more than the female group, but the observed difference is not statistically significant.
 
 ## Question 7
 
