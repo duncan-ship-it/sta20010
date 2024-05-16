@@ -99,7 +99,7 @@ _The number of vehicles pass a bridge in one-minute interval were recorded over 
 > passes <- read.csv("no_vehicles.csv")
 > require("ggplot2")
 > freqs <- table(passes$no_of.vec)
-> ggplot(data.frame(Value=names(freqs), Frequency=as.vector(freqs)), aes(x=Value, y=Frequency, group=1)) + geom_line()
+> ggplot(data.frame(Vehicles=names(freqs), Frequency=as.vector(freqs)), aes(x=Vehicles, y=Frequency, group=1)) + geom_line() + ggtitle("Frequency of vehicle crossings in one minute")
 ```
 ![](./plots/Q3a_vehicle_distribution.png)
 
@@ -163,7 +163,7 @@ _Suppose birth weights of full-term babies have a normal distribution with mean 
 ### _a. What is the probability that a randomly selected baby will have a birth weight between 2800 and 4100 grams?_
 
 ```
-> pnorm(4100, mean=3100, sd=600) - pnorm(2800, mean=3100, sd=600, lower.tail=T)
+> pnorm(4100, mean=3100, sd=600) - pnorm(2800, mean=3100, sd=600)
 [1] 0.6436721
 ```
 
@@ -183,7 +183,7 @@ _Suppose birth weights of full-term babies have a normal distribution with mean 
 ### _c. From a hospital database, 10 babies’ weights were randomly selected. What is the probability that two of the ten babies’ weight between 3100 and 4200 grams?_
 
 ```
-> pnorm(4100, mean=3100, sd=600) - pnorm(3100, mean=3100, sd=600, lower.tail=T)
+> pnorm(4100, mean=3100, sd=600) - pnorm(3100, mean=3100, sd=600)
 [1] 0.4522096
 > dbinom(2, 10, 0.4522096)
 [1] 0.07461178
